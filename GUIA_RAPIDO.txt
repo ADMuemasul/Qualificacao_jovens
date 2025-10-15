@@ -1,0 +1,100 @@
+═══════════════════════════════════════════════════════════════════
+    GUIA RÁPIDO - QUESTIONÁRIO PIBETX 2024/2025
+═══════════════════════════════════════════════════════════════════
+
+🚀 PASSO A PASSO PARA INICIAR:
+
+1. INICIAR O SERVIDOR
+   ────────────────────────────────────────────────────────────────
+   
+   Opção A (Mais Fácil):
+   • Clique duas vezes no arquivo: iniciar_servidor.bat
+   
+   Opção B (Manual):
+   • Abra o PowerShell ou CMD nesta pasta
+   • Digite: python server.py
+   • Pressione Enter
+   
+   ✅ Se deu certo, você verá:
+      "[OK] Servidor rodando em: http://localhost:5000"
+
+
+2. CRIAR TÚNEL PÚBLICO (para compartilhar)
+   ────────────────────────────────────────────────────────────────
+   
+   📌 NGROK (Recomendado):
+   
+   a) Baixe o ngrok:
+      • Acesse: https://ngrok.com/download
+      • Baixe para Windows
+      • Extraia o ngrok.exe para esta pasta
+   
+   b) Abra OUTRO PowerShell/CMD nesta pasta
+      • Digite: ngrok http 5000
+      • Pressione Enter
+   
+   c) Copie o link que aparecer:
+      Exemplo: https://abc123.ngrok-free.app
+   
+   d) Envie esse link para as pessoas responderem!
+
+
+3. VER AS RESPOSTAS
+   ────────────────────────────────────────────────────────────────
+   
+   Opção A (Estatísticas):
+   • Digite: python visualizar_respostas.py
+   • Verá um resumo com gráficos e porcentagens
+   
+   Opção B (Arquivo Bruto):
+   • Abra o arquivo: respostas.json
+   • Todas as respostas estão lá em formato JSON
+   
+   Opção C (Excel):
+   • Execute: python visualizar_respostas.py
+   • Um arquivo respostas.csv será criado
+   • Abra no Excel
+
+
+═══════════════════════════════════════════════════════════════════
+❓ PROBLEMAS COMUNS:
+═══════════════════════════════════════════════════════════════════
+
+Erro: "Python não é reconhecido"
+→ Instale o Python: https://www.python.org/downloads/
+   Marque a opção "Add Python to PATH"
+
+Erro: "Porta 8000 em uso"
+→ Abra server.py e mude PORT = 8000 para PORT = 8080
+   Depois use: ngrok http 8080
+
+Ngrok pede login
+→ É grátis! Crie uma conta em https://ngrok.com/
+   Ou use outra opção de túnel (veja README.md)
+
+
+═══════════════════════════════════════════════════════════════════
+📝 LINKS ÚTEIS:
+═══════════════════════════════════════════════════════════════════
+
+• Python: https://www.python.org/downloads/
+• Ngrok: https://ngrok.com/download
+• Veja o README.md para mais opções de túnel
+
+
+═══════════════════════════════════════════════════════════════════
+💡 DICAS:
+═══════════════════════════════════════════════════════════════════
+
+✓ Deixe o servidor rodando enquanto coleta respostas
+✓ NÃO feche a janela do servidor
+✓ NÃO feche a janela do ngrok
+✓ O link do ngrok muda cada vez que você reinicia
+✓ Teste você mesmo antes de enviar para outros
+
+
+═══════════════════════════════════════════════════════════════════
+
+Qualquer dúvida, consulte o arquivo README.md completo!
+
+

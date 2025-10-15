@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questionário de Avaliação - PIBETX 2024/2025</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        #app {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .header h2 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .project-info {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 5px solid #667eea;
+        }
+
+        .project-info h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .project-info p {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .info-item strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .questionnaire {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .questionnaire h2 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2em;
+            text-align: center;
+        }
+
+        .question-block {
+            margin-bottom: 35px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .question-block:hover {
+            transform: translateX(5px);
+        }
+
+        .question-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .sub-question {
+            font-weight: 600;
+            color: #555;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .option:hover {
+            background: #e8eaf6;
+            border-color: #667eea;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 12px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .option label {
+            cursor: pointer;
+            flex: 1;
+            color: #333;
+        }
+
+        .submit-section {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 50px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .success-message {
+            background: #4caf50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: left;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+            border-left: 4px solid #ffeb3b;
+            animation: slideIn 0.5s ease;
+        }
+
+        .error-message strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .error-message ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .error-message li {
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .header h2 {
+                font-size: 1.2em;
+            }
+
+            .questionnaire {
+                padding: 25px;
+            }
+
+            .question-block {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <h1>PIBETX 2024/2025</h1>
+            <h2>Curso de Capacitação em Ferramentas Microsoft Office</h2>
+            
+            <div class="project-info">
+                <h3>Sobre o Projeto</h3>
+                <p>
+                    O projeto PIBETX (Programa Institucional de Bolsas de Extensão) oferece capacitação gratuita 
+                    em ferramentas essenciais do Microsoft Office para a comunidade acadêmica e externa.
+                </p>
+                <p>
+                    Durante 30 horas de curso prático, os participantes aprendem a utilizar Word, Excel, PowerPoint 
+                    e Power BI, desenvolvendo competências fundamentais para o mercado de trabalho atual.
+                </p>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>Carga Horária</strong>
+                        <span>30 horas</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Modalidade</strong>
+                        <span>Presencial</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Local</strong>
+                        <span>UEMASUL</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Período</strong>
+                        <span>2024/2025</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="questionnaire">
+            <h2>Questionário de Avaliação</h2>
+            
+            <div v-if="errorMessage" class="error-message">
+                <div style="font-weight: bold; margin-bottom: 10px;">{{ errorMessage }}</div>
+                <div v-if="errorDetails" style="white-space: pre-line; font-size: 0.9em; margin-bottom: 15px;">• {{ errorDetails }}</div>
+                <div style="text-align: center;">
+                    <button type="button" @click="scrollToFirstMissingField(getFirstMissingField())" 
+                            style="background: #ffeb3b; color: #333; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: bold;">
+                        📍 Ir para primeira questão não respondida
+                    </button>
+                </div>
+            </div>
+
+            <form @submit.prevent="submitForm">
+                <!-- Campo Nome -->
+                <div class="question-block">
+                    <div class="question-title">
+                        1. Qual é o seu nome completo? *
+                    </div>
+                    <div class="option" style="padding: 15px; background: white; border-radius: 8px;">
+                        <input 
+                            type="text" 
+                            id="nome" 
+                            v-model="form.nome"
+                            @input="clearErrors"
+                            placeholder="Digite seu nome completo"
+                            required
+                            style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; transition: border-color 0.3s ease;"
+                            :style="{ borderColor: form.nome ? '#667eea' : '#e0e0e0' }"
+                        >
+                    </div>
+                </div>
+
+                <!-- Questão 1 -->
+                <div class="question-block">
+                    <div class="question-title">
+                        2. Qual ferramenta ensinada no curso você acredita que será MAIS IMPORTANTE para sua carreira profissional?
+                    </div>
+                    <div class="option" v-for="option in q1Options" :key="option.value">
+                        <input 
+                            type="radio" 
+                            :id="'q1_' + option.value" 
+                            :value="option.value" 
+                            v-model="form.q1"
+                        >
+                        <label :for="'q1_' + option.value">{{ option.label }}</label>
+                    </div>
+                </div>
+
+                <!-- Questão 2 -->
+                <div class="question-block">
+                    <div class="question-title">
+                        3. Em uma escala de 1 a 5, qual o seu nível de satisfação geral com o curso?
+                    </div>
+                    <div class="option" v-for="option in q2Options" :key="option.value">
+                        <input 
+                            type="radio" 
+                            :id="'q2_' + option.value" 
+                            :value="option.value" 
+                            v-model="form.q2"
+                        >
+                        <label :for="'q2_' + option.value">{{ option.label }}</label>
+                    </div>
+                </div>
+
+                <!-- Questão 3 -->
+                <div class="question-block">
+                    <div class="question-title">
+                        4. O curso atendeu às suas expectativas?
+                    </div>
+                    <div class="option" v-for="option in q3Options" :key="option.value">
+                        <input 
+                            type="radio" 
+                            :id="'q3_' + option.value" 
+                            :value="option.value" 
+                            v-model="form.q3"
+                        >
+                        <label :for="'q3_' + option.value">{{ option.label }}</label>
+                    </div>
+                </div>
+
+                <!-- Questão 4 -->
+                <div class="question-block">
+                    <div class="question-title">
+                        5. Você recomendaria este curso para um amigo ou familiar?
+                    </div>
+                    <div class="option" v-for="option in q4Options" :key="option.value">
+                        <input 
+                            type="radio" 
+                            :id="'q4_' + option.value" 
+                            :value="option.value" 
+                            v-model="form.q4"
+                        >
+                        <label :for="'q4_' + option.value">{{ option.label }}</label>
+                    </div>
+                </div>
+
+                <!-- Questão 5 -->
+                <div class="question-block">
+                    <div class="question-title">
+                        6. A carga horária total do curso (30 horas) foi adequada para o aprendizado do conteúdo?
+                    </div>
+                    <div class="option" v-for="option in q5Options" :key="option.value">
+                        <input 
+                            type="radio" 
+                            :id="'q5_' + option.value" 
+                            :value="option.value" 
+                            v-model="form.q5"
+                        >
+                        <label :for="'q5_' + option.value">{{ option.label }}</label>
+                    </div>
+                </div>
+
+                <!-- Questão 6 -->
+                <div class="question-block">
+                    <div class="question-title">
+                        7. Como você avalia a atuação dos instrutores (monitores acadêmicos) do curso?
+                    </div>
+                    
+                    <div class="sub-question">Demonstraram conhecer bem o assunto:</div>
+                    <div class="option" v-for="option in ratingOptions" :key="'q6a_' + option.value">
+                        <input 
+                            type="radio" 
+                            :id="'q6a_' + option.value" 
+                            :value="option.value" 
+                            v-model="form.q6a"
+                        >
+                        <label :for="'q6a_' + option.value">{{ option.label }}</label>
+                    </div>
+
+                    <div class="sub-question">Foram claros e fáceis de entender:</div>
+                    <div class="option" v-for="option in ratingOptions" :key="'q6b_' + option.value">
+                        <input 
+                            type="radio" 
+                            :id="'q6b_' + option.value" 
+                            :value="option.value" 
+                            v-model="form.q6b"
+                        >
+                        <label :for="'q6b_' + option.value">{{ option.label }}</label>
+                    </div>
+
+                    <div class="sub-question">Foram atenciosos para tirar dúvidas:</div>
+                    <div class="option" v-for="option in ratingOptions" :key="'q6c_' + option.value">
+                        <input 
+                            type="radio" 
+                            :id="'q6c_' + option.value" 
+                            :value="option.value" 
+                            v-model="form.q6c"
+                        >
+                        <label :for="'q6c_' + option.value">{{ option.label }}</label>
+                    </div>
+                </div>
+
+                <!-- Questão 7 -->
+                <div class="question-block">
+                    <div class="question-title">
+                        8. A apostila em PDF e outros materiais digitais foram úteis para o seu aprendizado?
+                    </div>
+                    <div class="option" v-for="option in q7Options" :key="option.value">
+                        <input 
+                            type="radio" 
+                            :id="'q7_' + option.value" 
+                            :value="option.value" 
+                            v-model="form.q7"
+                        >
+                        <label :for="'q7_' + option.value">{{ option.label }}</label>
+                    </div>
+                </div>
+
+                <!-- Questão 8 -->
+                <div class="question-block">
+                    <div class="question-title">
+                        9. A estrutura do laboratório de informática da UEMASUL foi adequada para as aulas?
+                    </div>
+                    <div class="option" v-for="option in q8Options" :key="option.value">
+                        <input 
+                            type="radio" 
+                            :id="'q8_' + option.value" 
+                            :value="option.value" 
+                            v-model="form.q8"
+                        >
+                        <label :for="'q8_' + option.value">{{ option.label }}</label>
+                    </div>
+                </div>
+
+                <div class="submit-section">
+                    <button type="submit" class="submit-btn">Enviar Avaliação</button>
+                </div>
+            </form>
+
+            <div v-if="submitted" class="success-message">
+                <h3>✓ Obrigado pela sua avaliação!</h3>
+                <p>Suas respostas foram registradas com sucesso.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    form: {
+                        nome: '',
+                        q1: '',
+                        q2: '',
+                        q3: '',
+                        q4: '',
+                        q5: '',
+                        q6a: '',
+                        q6b: '',
+                        q6c: '',
+                        q7: '',
+                        q8: ''
+                    },
+                    submitted: false,
+                    errorMessage: '',
+                    errorDetails: '',
+                    questionMap: {
+                        'nome': { title: 'Nome completo', number: 1 },
+                        'q1': { title: 'Ferramenta mais importante', number: 2 },
+                        'q2': { title: 'Nível de satisfação', number: 3 },
+                        'q3': { title: 'Atendimento às expectativas', number: 4 },
+                        'q4': { title: 'Recomendaria o curso', number: 5 },
+                        'q5': { title: 'Carga horária adequada', number: 6 },
+                        'q6a': { title: 'Conhecimento dos instrutores', number: 7 },
+                        'q6b': { title: 'Clareza na comunicação', number: 7 },
+                        'q6c': { title: 'Atenção para tirar dúvidas', number: 7 },
+                        'q7': { title: 'Materiais didáticos', number: 8 },
+                        'q8': { title: 'Estrutura do laboratório', number: 9 }
+                    },
+                    q1Options: [
+                        { value: 'word', label: 'Word (textos e normas ABNT)' },
+                        { value: 'excel', label: 'Excel (planilhas e organização de dados)' },
+                        { value: 'powerpoint', label: 'PowerPoint (apresentações criativas)' },
+                        { value: 'powerbi', label: 'Power BI (análise de dados e dashboards)' }
+                    ],
+                    q2Options: [
+                        { value: '1', label: '1 - Muito Insatisfeito' },
+                        { value: '2', label: '2 - Insatisfeito' },
+                        { value: '3', label: '3 - Neutro' },
+                        { value: '4', label: '4 - Satisfeito' },
+                        { value: '5', label: '5 - Muito Satisfeito' }
+                    ],
+                    q3Options: [
+                        { value: 'superou', label: 'Sim, superou minhas expectativas.' },
+                        { value: 'totalmente', label: 'Sim, atendeu totalmente.' },
+                        { value: 'parcialmente', label: 'Parcialmente.' },
+                        { value: 'nao', label: 'Não, não atendeu.' }
+                    ],
+                    q4Options: [
+                        { value: 'sim', label: 'Sim' },
+                        { value: 'nao', label: 'Não' }
+                    ],
+                    q5Options: [
+                        { value: 'suficiente', label: 'Sim, foi suficiente.' },
+                        { value: 'curta', label: 'Não, achei muito curta.' },
+                        { value: 'longa', label: 'Não, achei muito longa.' }
+                    ],
+                    ratingOptions: [
+                        { value: 'otimo', label: 'Ótimo' },
+                        { value: 'bom', label: 'Bom' },
+                        { value: 'regular', label: 'Regular' },
+                        { value: 'ruim', label: 'Ruim' }
+                    ],
+                    q7Options: [
+                        { value: 'muito_uteis', label: 'Sim, muito úteis.' },
+                        { value: 'poderiam_melhorar', label: 'Sim, mas poderiam ser melhores.' },
+                        { value: 'nao_uteis', label: 'Não foram muito úteis.' }
+                    ],
+                    q8Options: [
+                        { value: 'adequada', label: 'Sim, atendeu a todas as necessidades.' },
+                        { value: 'dificuldades', label: 'Sim, mas com algumas dificuldades (internet, computador lento, etc.).' },
+                        { value: 'inadequada', label: 'Não, a estrutura atrapalhou o aprendizado.' }
+                    ]
+                };
+            },
+            methods: {
+                async submitForm() {
+                    // Limpar mensagens de erro anteriores
+                    this.errorMessage = '';
+                    this.errorDetails = '';
+                    
+                    // Validar se todas as questões foram respondidas
+                    const requiredFields = ['nome', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6a', 'q6b', 'q6c', 'q7', 'q8'];
+                    const missingFields = requiredFields.filter(field => !this.form[field]);
+                    
+                    if (missingFields.length > 0) {
+                        // Criar mensagem detalhada
+                        const missingQuestions = missingFields.map(field => {
+                            const question = this.questionMap[field];
+                            return `Questão ${question.number}: ${question.title}`;
+                        });
+                        
+                        this.errorMessage = `⚠️ Você esqueceu de responder ${missingFields.length} questão(ões):`;
+                        this.errorDetails = missingQuestions.join('\n• ');
+                        
+                        // Ir para a primeira questão não respondida
+                        this.scrollToFirstMissingField(missingFields[0]);
+                        return;
+                    }
+
+                    this.errorMessage = '';
+                    
+                    // Tentar enviar para o servidor
+                    try {
+                        const response = await fetch('/api/submit', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(this.form)
+                        });
+
+                        if (response.ok) {
+                            console.log('✓ Resposta enviada para o servidor!');
+                        } else {
+                            throw new Error('Erro ao enviar para o servidor');
+                        }
+                    } catch (error) {
+                        console.log('⚠ Servidor não disponível, salvando localmente:', error);
+                        
+                        // Fallback: Salvar no localStorage
+                        const responses = JSON.parse(localStorage.getItem('questionnaireResponses') || '[]');
+                        responses.push({
+                            ...this.form,
+                            timestamp: new Date().toISOString()
+                        });
+                        localStorage.setItem('questionnaireResponses', JSON.stringify(responses));
+                    }
+                    
+                    console.log('Formulário enviado:', this.form);
+                    
+                    // Mostrar mensagem de sucesso
+                    this.submitted = true;
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                    
+                    // Resetar formulário após 3 segundos
+                    setTimeout(() => {
+                        this.resetForm();
+                    }, 3000);
+                },
+                resetForm() {
+                    this.form = {
+                        nome: '',
+                        q1: '',
+                        q2: '',
+                        q3: '',
+                        q4: '',
+                        q5: '',
+                        q6a: '',
+                        q6b: '',
+                        q6c: '',
+                        q7: '',
+                        q8: ''
+                    };
+                    this.submitted = false;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                },
+                scrollToFirstMissingField(fieldName) {
+                    // Mapear campos para IDs de elementos
+                    const fieldToIdMap = {
+                        'nome': 'nome',
+                        'q1': 'q1_word',
+                        'q2': 'q2_1',
+                        'q3': 'q3_superou',
+                        'q4': 'q4_sim',
+                        'q5': 'q5_suficiente',
+                        'q6a': 'q6a_otimo',
+                        'q6b': 'q6b_otimo',
+                        'q6c': 'q6c_otimo',
+                        'q7': 'q7_muito_uteis',
+                        'q8': 'q8_adequada'
+                    };
+                    
+                    const elementId = fieldToIdMap[fieldName];
+                    if (elementId) {
+                        const element = document.getElementById(elementId);
+                        if (element) {
+                            // Scroll suave até o elemento
+                            element.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'center' 
+                            });
+                            
+                            // Destacar o elemento por alguns segundos
+                            element.style.transition = 'all 0.3s ease';
+                            element.style.backgroundColor = '#fff3cd';
+                            element.style.borderColor = '#ffc107';
+                            element.style.boxShadow = '0 0 10px rgba(255, 193, 7, 0.5)';
+                            
+                            setTimeout(() => {
+                                element.style.backgroundColor = '';
+                                element.style.borderColor = '';
+                                element.style.boxShadow = '';
+                            }, 3000);
+                        }
+                    }
+                },
+                clearErrors() {
+                    if (this.errorMessage) {
+                        this.errorMessage = '';
+                        this.errorDetails = '';
+                    }
+                },
+                getFirstMissingField() {
+                    const requiredFields = ['nome', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6a', 'q6b', 'q6c', 'q7', 'q8'];
+                    return requiredFields.find(field => !this.form[field]) || 'nome';
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Respostas do Questionário PIBETX</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        #app {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header h2 {
+            color: #764ba2;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .dashboard {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 30px;
+        }
+
+        .question-block {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .question-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .answer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .answer-text {
+            flex: 1;
+            color: #333;
+        }
+
+        .answer-stats {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .answer-count {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .answer-percent {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .progress-bar {
+            width: 100px;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #f44336;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .export-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .export-btn.secondary {
+            background: #6c757d;
+        }
+
+        .export-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .participants-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .participant-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s ease;
+        }
+
+        .participant-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .participant-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .participant-date {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .dashboard {
+                padding: 20px;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .answer-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .answer-stats {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <h1>📊 Dashboard de Respostas</h1>
+            <h2>Questionário PIBETX 2024/2025</h2>
+            
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <div class="stat-number">{{ totalRespostas }}</div>
+                    <div class="stat-label">Total de Respostas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ mediaSatisfacao }}</div>
+                    <div class="stat-label">Média de Satisfação</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ percentualRecomendacao }}%</div>
+                    <div class="stat-label">Recomendariam</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ ultimaResposta }}</div>
+                    <div class="stat-label">Última Resposta</div>
+                </div>
+            </div>
+            
+            <!-- Lista de Participantes -->
+            <div class="section" v-if="!loading && !error && respostas.length > 0">
+                <h3 class="section-title">👥 Participantes que Responderam</h3>
+                <div class="participants-list">
+                    <div v-for="(resposta, index) in respostas" :key="index" class="participant-item">
+                        <div class="participant-name">{{ resposta.nome || 'Nome não informado' }}</div>
+                        <div class="participant-date">{{ formatarData(resposta.timestamp) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <div class="export-buttons">
+                <button class="refresh-btn" @click="carregarRespostas">
+                    🔄 Atualizar Dados
+                </button>
+                <button class="export-btn" @click="exportarCSV">
+                    📊 Exportar CSV
+                </button>
+                <button class="export-btn secondary" @click="exportarJSON">
+                    📄 Exportar JSON
+                </button>
+            </div>
+
+            <div v-if="loading" class="loading">
+                Carregando dados...
+            </div>
+
+            <div v-if="error" class="error">
+                {{ error }}
+            </div>
+
+            <div v-if="!loading && !error && respostas.length === 0" class="no-data">
+                Nenhuma resposta encontrada ainda.
+            </div>
+
+            <div v-if="!loading && !error && respostas.length > 0">
+                <!-- Questão 1: Ferramenta mais importante -->
+                <div class="section">
+                    <h3 class="section-title">1. Ferramenta Mais Importante</h3>
+                    <div class="chart-container">
+                        <canvas ref="chart1"></canvas>
+                    </div>
+                    <div class="question-block">
+                        <div v-for="(item, index) in q1Data" :key="index" class="answer-item">
+                            <div class="answer-text">{{ item.label }}</div>
+                            <div class="answer-stats">
+                                <div class="answer-count">{{ item.count }}</div>
+                                <div class="answer-percent">{{ item.percent }}%</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" :style="{ width: item.percent + '%' }"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Questão 2: Satisfação -->
+                <div class="section">
+                    <h3 class="section-title">2. Nível de Satisfação Geral</h3>
+                    <div class="chart-container">
+                        <canvas ref="chart2"></canvas>
+                    </div>
+                    <div class="question-block">
+                        <div v-for="(item, index) in q2Data" :key="index" class="answer-item">
+                            <div class="answer-text">{{ item.label }}</div>
+                            <div class="answer-stats">
+                                <div class="answer-count">{{ item.count }}</div>
+                                <div class="answer-percent">{{ item.percent }}%</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" :style="{ width: item.percent + '%' }"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Questão 3: Expectativas -->
+                <div class="section">
+                    <h3 class="section-title">3. Atendimento às Expectativas</h3>
+                    <div class="chart-container">
+                        <canvas ref="chart3"></canvas>
+                    </div>
+                    <div class="question-block">
+                        <div v-for="(item, index) in q3Data" :key="index" class="answer-item">
+                            <div class="answer-text">{{ item.label }}</div>
+                            <div class="answer-stats">
+                                <div class="answer-count">{{ item.count }}</div>
+                                <div class="answer-percent">{{ item.percent }}%</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" :style="{ width: item.percent + '%' }"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Questão 4: Recomendação -->
+                <div class="section">
+                    <h3 class="section-title">4. Recomendariam o Curso</h3>
+                    <div class="chart-container">
+                        <canvas ref="chart4"></canvas>
+                    </div>
+                    <div class="question-block">
+                        <div v-for="(item, index) in q4Data" :key="index" class="answer-item">
+                            <div class="answer-text">{{ item.label }}</div>
+                            <div class="answer-stats">
+                                <div class="answer-count">{{ item.count }}</div>
+                                <div class="answer-percent">{{ item.percent }}%</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" :style="{ width: item.percent + '%' }"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Questão 6: Avaliação dos Instrutores -->
+                <div class="section">
+                    <h3 class="section-title">6. Avaliação dos Instrutores</h3>
+                    
+                    <h4 style="margin-bottom: 15px; color: #555;">Conhecimento do Assunto</h4>
+                    <div class="question-block">
+                        <div v-for="(item, index) in q6aData" :key="index" class="answer-item">
+                            <div class="answer-text">{{ item.label }}</div>
+                            <div class="answer-stats">
+                                <div class="answer-count">{{ item.count }}</div>
+                                <div class="answer-percent">{{ item.percent }}%</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" :style="{ width: item.percent + '%' }"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-bottom: 15px; color: #555;">Clareza na Comunicação</h4>
+                    <div class="question-block">
+                        <div v-for="(item, index) in q6bData" :key="index" class="answer-item">
+                            <div class="answer-text">{{ item.label }}</div>
+                            <div class="answer-stats">
+                                <div class="answer-count">{{ item.count }}</div>
+                                <div class="answer-percent">{{ item.percent }}%</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" :style="{ width: item.percent + '%' }"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-bottom: 15px; color: #555;">Atenção para Tirar Dúvidas</h4>
+                    <div class="question-block">
+                        <div v-for="(item, index) in q6cData" :key="index" class="answer-item">
+                            <div class="answer-text">{{ item.label }}</div>
+                            <div class="answer-stats">
+                                <div class="answer-count">{{ item.count }}</div>
+                                <div class="answer-percent">{{ item.percent }}%</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" :style="{ width: item.percent + '%' }"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    respostas: [],
+                    loading: true,
+                    error: '',
+                    charts: {}
+                };
+            },
+            computed: {
+                totalRespostas() {
+                    return this.respostas.length;
+                },
+                mediaSatisfacao() {
+                    if (this.respostas.length === 0) return '0.0';
+                    const soma = this.respostas.reduce((acc, r) => acc + parseInt(r.q2), 0);
+                    return (soma / this.respostas.length).toFixed(1);
+                },
+                percentualRecomendacao() {
+                    if (this.respostas.length === 0) return 0;
+                    const sim = this.respostas.filter(r => r.q4 === 'sim').length;
+                    return Math.round((sim / this.respostas.length) * 100);
+                },
+                ultimaResposta() {
+                    if (this.respostas.length === 0) return 'N/A';
+                    const ultima = this.respostas[this.respostas.length - 1];
+                    if (ultima.timestamp) {
+                        const data = new Date(ultima.timestamp);
+                        return data.toLocaleDateString('pt-BR');
+                    }
+                    return 'N/A';
+                },
+                q1Data() {
+                    return this.processarDados('q1', {
+                        'word': 'Word (textos e normas ABNT)',
+                        'excel': 'Excel (planilhas e organização de dados)',
+                        'powerpoint': 'PowerPoint (apresentações criativas)',
+                        'powerbi': 'Power BI (análise de dados e dashboards)'
+                    });
+                },
+                q2Data() {
+                    return this.processarDados('q2', {
+                        '1': '1 - Muito Insatisfeito',
+                        '2': '2 - Insatisfeito',
+                        '3': '3 - Neutro',
+                        '4': '4 - Satisfeito',
+                        '5': '5 - Muito Satisfeito'
+                    });
+                },
+                q3Data() {
+                    return this.processarDados('q3', {
+                        'superou': 'Sim, superou minhas expectativas',
+                        'totalmente': 'Sim, atendeu totalmente',
+                        'parcialmente': 'Parcialmente',
+                        'nao': 'Não, não atendeu'
+                    });
+                },
+                q4Data() {
+                    return this.processarDados('q4', {
+                        'sim': 'Sim',
+                        'nao': 'Não'
+                    });
+                },
+                q6aData() {
+                    return this.processarDados('q6a', {
+                        'otimo': 'Ótimo',
+                        'bom': 'Bom',
+                        'regular': 'Regular',
+                        'ruim': 'Ruim'
+                    });
+                },
+                q6bData() {
+                    return this.processarDados('q6b', {
+                        'otimo': 'Ótimo',
+                        'bom': 'Bom',
+                        'regular': 'Regular',
+                        'ruim': 'Ruim'
+                    });
+                },
+                q6cData() {
+                    return this.processarDados('q6c', {
+                        'otimo': 'Ótimo',
+                        'bom': 'Bom',
+                        'regular': 'Regular',
+                        'ruim': 'Ruim'
+                    });
+                }
+            },
+            methods: {
+                async carregarRespostas() {
+                    this.loading = true;
+                    this.error = '';
+                    
+                    try {
+                        const response = await fetch('/api/responses');
+                        if (response.ok) {
+                            this.respostas = await response.json();
+                            this.$nextTick(() => {
+                                this.criarGraficos();
+                            });
+                        } else {
+                            throw new Error('Erro ao carregar respostas');
+                        }
+                    } catch (error) {
+                        this.error = 'Erro ao carregar dados: ' + error.message;
+                        console.error('Erro:', error);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                processarDados(campo, mapeamento) {
+                    const contadores = {};
+                    
+                    // Contar respostas
+                    this.respostas.forEach(resposta => {
+                        const valor = resposta[campo];
+                        contadores[valor] = (contadores[valor] || 0) + 1;
+                    });
+                    
+                    // Converter para array com labels
+                    return Object.entries(contadores)
+                        .map(([valor, count]) => ({
+                            label: mapeamento[valor] || valor,
+                            count: count,
+                            percent: Math.round((count / this.respostas.length) * 100)
+                        }))
+                        .sort((a, b) => b.count - a.count);
+                },
+                criarGraficos() {
+                    this.criarGrafico('chart1', this.q1Data, 'Ferramenta Mais Importante');
+                    this.criarGrafico('chart2', this.q2Data, 'Nível de Satisfação');
+                    this.criarGrafico('chart3', this.q3Data, 'Atendimento às Expectativas');
+                    this.criarGrafico('chart4', this.q4Data, 'Recomendariam o Curso');
+                },
+                criarGrafico(ref, dados, titulo) {
+                    const ctx = this.$refs[ref];
+                    if (!ctx) return;
+                    
+                    // Destruir gráfico existente
+                    if (this.charts[ref]) {
+                        this.charts[ref].destroy();
+                    }
+                    
+                    this.charts[ref] = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: dados.map(d => d.label),
+                            datasets: [{
+                                data: dados.map(d => d.count),
+                                backgroundColor: [
+                                    '#667eea',
+                                    '#764ba2',
+                                    '#f093fb',
+                                    '#f5576c',
+                                    '#4facfe',
+                                    '#00f2fe'
+                                ],
+                                borderWidth: 2,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 20,
+                                        usePointStyle: true
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: titulo,
+                                    font: {
+                                        size: 16,
+                                        weight: 'bold'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                },
+                exportarCSV() {
+                    if (this.respostas.length === 0) {
+                        alert('Nenhuma resposta para exportar');
+                        return;
+                    }
+                    
+                    const csv = this.converterParaCSV(this.respostas);
+                    this.downloadArquivo(csv, 'respostas.csv', 'text/csv');
+                },
+                exportarJSON() {
+                    if (this.respostas.length === 0) {
+                        alert('Nenhuma resposta para exportar');
+                        return;
+                    }
+                    
+                    const json = JSON.stringify(this.respostas, null, 2);
+                    this.downloadArquivo(json, 'respostas.json', 'application/json');
+                },
+                converterParaCSV(dados) {
+                    if (dados.length === 0) return '';
+                    
+                    const headers = Object.keys(dados[0]);
+                    const csvHeaders = headers.join(',');
+                    
+                    const csvRows = dados.map(row => 
+                        headers.map(header => {
+                            const value = row[header];
+                            return typeof value === 'string' ? `"${value}"` : value;
+                        }).join(',')
+                    );
+                    
+                    return [csvHeaders, ...csvRows].join('\n');
+                },
+                downloadArquivo(conteudo, nomeArquivo, tipoMime) {
+                    const blob = new Blob([conteudo], { type: tipoMime });
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = nomeArquivo;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            },
+            formatarData(timestamp) {
+                if (!timestamp) return 'Data não disponível';
+                try {
+                    const data = new Date(timestamp);
+                    return data.toLocaleDateString('pt-BR') + ' às ' + data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                } catch {
+                    return 'Data inválida';
+                }
+            }
+        },
+            mounted() {
+                this.carregarRespostas();
+                
+                // Atualizar automaticamente a cada 30 segundos
+                setInterval(() => {
+                    this.carregarRespostas();
+                }, 30000);
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
