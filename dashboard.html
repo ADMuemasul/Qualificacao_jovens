@@ -342,6 +342,9 @@
                 <button class="export-btn secondary" @click="exportarJSON">
                     📄 Exportar JSON
                 </button>
+                <button class="export-btn" @click="importarDados" style="background: #17a2b8;">
+                    📥 Importar Dados
+                </button>
             </div>
 
             <div v-if="loading" class="loading">
@@ -584,15 +587,20 @@
                     this.error = '';
                     
                     try {
-                        const response = await fetch('/api/responses');
-                        if (response.ok) {
-                            this.respostas = await response.json();
+                        // Tentar carregar do localStorage primeiro (para uso offline)
+                        const localData = localStorage.getItem('questionnaireResponses');
+                        if (localData) {
+                            this.respostas = JSON.parse(localData);
                             this.$nextTick(() => {
                                 this.criarGraficos();
                             });
-                        } else {
-                            throw new Error('Erro ao carregar respostas');
+                            this.loading = false;
+                            return;
                         }
+                        
+                        // Se não há dados locais, mostrar mensagem informativa
+                        this.error = 'Nenhum dado encontrado. Para visualizar respostas, execute o servidor local ou envie dados para o localStorage.';
+                        
                     } catch (error) {
                         this.error = 'Erro ao carregar dados: ' + error.message;
                         console.error('Erro:', error);
@@ -726,6 +734,32 @@
                 } catch {
                     return 'Data inválida';
                 }
+            },
+            importarDados() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = (event) => {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            try {
+                                const data = JSON.parse(e.target.result);
+                                this.respostas = data;
+                                localStorage.setItem('questionnaireResponses', JSON.stringify(data));
+                                this.$nextTick(() => {
+                                    this.criarGraficos();
+                                });
+                                alert('Dados importados com sucesso!');
+                            } catch (error) {
+                                alert('Erro ao importar dados: ' + error.message);
+                            }
+                        };
+                        reader.readAsText(file);
+                    }
+                };
+                input.click();
             }
         },
             mounted() {
